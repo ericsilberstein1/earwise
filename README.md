@@ -1,6 +1,6 @@
 # earwise — Adaptive Ear Trainer
 
-**[▶ Live app →](https://abeage1.github.io/earwise/)**
+**[▶ Live app →](https://ericsilberstein1.github.io/earwise/)**
 
 A static HTML/JS music ear training app with adaptive learning, spaced repetition, and progressive unlocking. Currently trains **interval recognition** and **chord recognition**.
 
