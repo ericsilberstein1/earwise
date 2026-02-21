@@ -170,6 +170,7 @@ const Audio = (() => {
 
   let lastChordFreqs = null;
   let lastChordArpeggio = true;
+  let lastChordRootMidi = null;
 
   async function _playChordFreqs(freqs, playArpeggio) {
     const audioCtx = await _ensureRunning();
@@ -210,8 +211,17 @@ const Audio = (() => {
 
     lastChordFreqs = freqs;
     lastChordArpeggio = playArpeggio;
+    lastChordRootMidi = rootMidi;
     lastRootFreq = null; // clear interval replay state
 
+    return _playChordFreqs(freqs, playArpeggio);
+  }
+
+  // Play any chord from the same root as the last played chord —
+  // used to let the user hear their wrong answer vs. the correct one.
+  function playChordFromLastRoot(semitones, playArpeggio = true) {
+    if (lastChordRootMidi === null) return Promise.resolve();
+    const freqs = semitones.map(s => midiToFreq(lastChordRootMidi + s));
     return _playChordFreqs(freqs, playArpeggio);
   }
 
@@ -227,5 +237,5 @@ const Audio = (() => {
     return Promise.resolve();
   }
 
-  return { unlock, play, playChord, replay };
+  return { unlock, play, playChord, playChordFromLastRoot, replay };
 })();

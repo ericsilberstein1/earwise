@@ -125,6 +125,12 @@ const App = {
     Audio.replay();
   },
 
+  playComparisonChord(chordId) {
+    Audio.unlock();
+    const chord = CHORD_MAP[chordId];
+    Audio.playChordFromLastRoot(chord.semitones, this.settings.playArpeggio !== false);
+  },
+
   _maybeShowSilentHint() {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (!isMobile) return;

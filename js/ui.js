@@ -300,7 +300,8 @@ const UI = (() => {
          <div class="feedback-text">Correct! <strong>${chord.name}</strong></div>
          <div class="chord-character">${chord.character}</div>`
       : `<div class="feedback-icon">✗</div>
-         <div class="feedback-text">The answer was <strong>${chord.name}</strong>${selected ? ` (you chose <strong>${selected.name}</strong>)` : ''}</div>
+         <div class="feedback-text">The answer was <strong>${chord.name}</strong></div>
+         ${selected ? `<div class="feedback-wrong-choice">You chose <strong>${selected.name}</strong><button class="btn-compare" id="btn-play-comparison" title="Play ${selected.name}">▶ hear it</button></div>` : ''}
          <div class="chord-character">${chord.character}</div>`;
 
     const showSongs = _app.settings.showSongsOn === 'always' ||
@@ -314,6 +315,11 @@ const UI = (() => {
     }
 
     feedbackEl.innerHTML = html;
+
+    const compBtn = feedbackEl.querySelector('#btn-play-comparison');
+    if (compBtn) {
+      compBtn.addEventListener('click', () => _app.playComparisonChord(selectedId));
+    }
   }
 
   // ── SESSION SUMMARY ─────────────────────────────────────────────────────────

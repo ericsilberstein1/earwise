@@ -126,6 +126,30 @@ main { flex: 1; padding: 24px 0 32px; }
 .mastery-bars--single { flex: 1; }
 .mastery-bars--single .mastery-cell { max-width: 220px; }
 
+/* Wrong-answer "you chose" line with comparison play button */
+.feedback-wrong-choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.btn-compare {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 9px;
+  font-size: 0.78rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.btn-compare:hover { background: var(--surface-2, rgba(255,255,255,0.06)); }
+
 /* Chord character blurb inside feedback */
 .chord-character {
   font-size: 0.85rem;
