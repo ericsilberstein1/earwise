@@ -109,6 +109,7 @@ const App = {
     const onDone = () => {
       this.questionStartTime = Date.now();
       UI.enableAnswering();
+      this._maybeShowSilentHint();
     };
 
     if (this.session.module === 'chords') {
@@ -122,6 +123,14 @@ const App = {
 
   replayInterval() {
     Audio.replay();
+  },
+
+  _maybeShowSilentHint() {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (!isMobile) return;
+    if (localStorage.getItem('earwise_silent_hint_shown')) return;
+    localStorage.setItem('earwise_silent_hint_shown', '1');
+    UI.toast('No sound? Check your silent switch', 'info');
   },
 
   handleAnswer(selectedId) {

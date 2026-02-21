@@ -394,13 +394,13 @@ const UI = (() => {
     $('tab-chords').addEventListener('click',    () => _app.setModule('chords'));
 
     // Nav
-    $('btn-start-session').addEventListener('click',  () => _app.startSession());
+    $('btn-start-session').addEventListener('click',  () => { Audio.unlock(); _app.startSession(); });
     $('btn-settings-home').addEventListener('click',  () => renderSettings());
     $('btn-settings-save').addEventListener('click',  () => { _app.saveSettings(collectSettings()); renderHome(); });
     $('btn-settings-cancel').addEventListener('click', () => renderHome());
-    $('btn-play').addEventListener('click',           () => _app.playCurrentInterval());
-    $('btn-replay').addEventListener('click',         () => _app.replayInterval());
-    $('btn-next').addEventListener('click',           () => _app.nextQuestion());
+    $('btn-play').addEventListener('click',           () => { Audio.unlock(); _app.playCurrentInterval(); });
+    $('btn-replay').addEventListener('click',         () => { Audio.unlock(); _app.replayInterval(); });
+    $('btn-next').addEventListener('click',           () => { Audio.unlock(); _app.nextQuestion(); });
     $('btn-session-again').addEventListener('click',  () => _app.startSession());
     $('btn-home-from-summary').addEventListener('click', () => renderHome());
     $('btn-home-from-question').addEventListener('click', () => {
