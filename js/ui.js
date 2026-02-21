@@ -77,8 +77,9 @@ const UI = (() => {
 
   function _renderChordMasteryGrid(container) {
     for (const chord of CHORDS) {
+      const isInversion = chord.id.includes('_inv');
       const row = document.createElement('div');
-      row.className = 'mastery-row';
+      row.className = 'mastery-row' + (isInversion ? ' mastery-row--inversion' : '');
 
       const label = document.createElement('div');
       label.className = 'mastery-label';
@@ -88,8 +89,9 @@ const UI = (() => {
       const bars = document.createElement('div');
       bars.className = 'mastery-bars mastery-bars--single';
 
+      const icon = chord.id.endsWith('_inv1') ? '⧫¹' : chord.id.endsWith('_inv2') ? '⧫²' : '⧫';
       const card = _app.chordDeck.getCard(chord.id);
-      bars.appendChild(_makeMasteryCell(card, '⧫'));
+      bars.appendChild(_makeMasteryCell(card, icon));
 
       row.appendChild(bars);
       container.appendChild(row);
@@ -130,7 +132,10 @@ const UI = (() => {
     // Direction / mode badge
     const dirEl = $('direction-badge');
     if (module === 'chords') {
-      dirEl.textContent = '⧫ Chord';
+      const cid = card.intervalId;
+      dirEl.textContent = cid.endsWith('_inv1') ? '⧫ 1st inv'
+                        : cid.endsWith('_inv2') ? '⧫ 2nd inv'
+                        : '⧫ Chord';
       dirEl.className = 'direction-badge dir-harmonic';
     } else {
       dirEl.textContent = _dirLabel(card.direction);
@@ -367,6 +372,7 @@ const UI = (() => {
     const s = _app.settings;
     $('setting-autoplay').checked    = s.autoPlay;
     $('setting-autoadvance').checked = s.autoAdvance;
+    $('setting-arpeggio').checked    = s.playArpeggio !== false;
     $('setting-songs').value         = s.showSongsOn;
     $('setting-session-size').value  = s.sessionSize;
   }
@@ -375,6 +381,7 @@ const UI = (() => {
     return {
       autoPlay:     $('setting-autoplay').checked,
       autoAdvance:  $('setting-autoadvance').checked,
+      playArpeggio: $('setting-arpeggio').checked,
       showSongsOn:  $('setting-songs').value,
       sessionSize:  parseInt($('setting-session-size').value, 10),
     };

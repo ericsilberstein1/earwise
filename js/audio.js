@@ -164,8 +164,9 @@ const Audio = (() => {
   }
 
   let lastChordFreqs = null;
+  let lastChordArpeggio = true;
 
-  function _playChordFreqs(freqs) {
+  function _playChordFreqs(freqs, playArpeggio) {
     const audioCtx = getCtx();
     const now = audioCtx.currentTime + 0.05;
 
@@ -175,20 +176,25 @@ const Audio = (() => {
       buildChordTone(freq, now, blockDuration, audioCtx);
     }
 
-    // Phase 2: ascending arpeggio (helps the ear isolate individual notes)
-    const arpStart = now + blockDuration + 0.18;
-    const arpSpacing = 0.20;
-    const arpNoteDuration = 0.65;
-    for (let i = 0; i < freqs.length; i++) {
-      buildChordTone(freqs[i], arpStart + i * arpSpacing, arpNoteDuration, audioCtx);
+    let totalDuration;
+    if (playArpeggio) {
+      // Phase 2: ascending arpeggio (helps the ear isolate individual notes)
+      const arpStart = now + blockDuration + 0.18;
+      const arpSpacing = 0.20;
+      const arpNoteDuration = 0.65;
+      for (let i = 0; i < freqs.length; i++) {
+        buildChordTone(freqs[i], arpStart + i * arpSpacing, arpNoteDuration, audioCtx);
+      }
+      totalDuration = blockDuration + 0.18 + (freqs.length - 1) * arpSpacing + arpNoteDuration + 0.1;
+    } else {
+      totalDuration = blockDuration + 0.1;
     }
 
-    const totalDuration = blockDuration + 0.18 + (freqs.length - 1) * arpSpacing + arpNoteDuration + 0.1;
     return new Promise(resolve => setTimeout(resolve, totalDuration * 1000));
   }
 
   // playChord picks a random root in a comfortable mid range
-  function playChord(semitones) {
+  function playChord(semitones, playArpeggio = true) {
     // semitones is an array like [0, 4, 7]
     const maxOffset = Math.max(...semitones);
     // Keep all notes in C3–C5 range (MIDI 48–72)
@@ -198,16 +204,17 @@ const Audio = (() => {
     const freqs = semitones.map(s => midiToFreq(rootMidi + s));
 
     lastChordFreqs = freqs;
+    lastChordArpeggio = playArpeggio;
     lastRootFreq = null; // clear interval replay state
 
-    return _playChordFreqs(freqs);
+    return _playChordFreqs(freqs, playArpeggio);
   }
 
   // ── Unified replay ─────────────────────────────────────────────────────────
 
   function replay() {
     if (lastChordFreqs !== null) {
-      return _playChordFreqs(lastChordFreqs);
+      return _playChordFreqs(lastChordFreqs, lastChordArpeggio);
     }
     if (lastRootFreq !== null) {
       return _playIntervalFreqs(lastRootFreq, lastIntervalFreq, lastIntervalDirection);

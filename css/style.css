@@ -206,6 +206,10 @@ main { flex: 1; padding: 24px 0 32px; }
   border-radius: 8px;
   padding: 10px 14px;
 }
+.mastery-row--inversion {
+  border-style: dashed;
+  opacity: 0.9;
+}
 
 .mastery-label {
   width: 80px;

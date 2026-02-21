@@ -74,6 +74,7 @@ const Storage = (() => {
       showSongsOn: 'wrong',    // 'always' | 'wrong' | 'never'
       sessionSize: 20,
       directionFilter: 'all',  // 'all' | 'ascending' | 'descending' | 'harmonic'
+      playArpeggio: true,       // play ascending arpeggio sweep after chord block
     };
     try {
       const raw = localStorage.getItem(KEY_SETTINGS);

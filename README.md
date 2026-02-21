@@ -39,19 +39,21 @@ npx serve .
 
 ## Chord Recognition
 
-7 chord types in pedagogical order:
+11 chord types / voicings in pedagogical order:
 1. **Major / Minor** (start here — the most fundamental contrast)
 2. **Diminished**
 3. **Augmented**
 4. **Dominant 7th / Major 7th**
 5. **Minor 7th**
+6. **Major (1st inv) / Minor (1st inv)** — 3rd in bass; unlocks after root-position mastery
+7. **Major (2nd inv) / Minor (2nd inv)** — 5th in bass; unlocks after 1st-inversion mastery
 
-Each chord is played as a **block chord** (all notes simultaneously) followed immediately by an **ascending arpeggio** — giving the ear both the gestalt color and the individual pitches.
+Each chord is played as a **block chord** (all notes simultaneously), optionally followed by an **ascending arpeggio** (togglable in Settings) — giving the ear both the gestalt color and the individual pitches.
 
 ## Roadmap
 
 - [x] Interval recognition (ascending / descending / harmonic)
-- [x] Chord recognition (major / minor / dim / aug / dom7 / maj7 / min7)
+- [x] Chord recognition (major / minor / dim / aug / dom7 / maj7 / min7 + inversions)
 - [ ] Scale recognition
 - [ ] Melodic dictation
 - [ ] Visual staff notation (VexFlow integration)

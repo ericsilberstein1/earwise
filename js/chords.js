@@ -92,15 +92,74 @@ const CHORDS = [
       { title: 'A Whiter Shade of Pale — Procol Harum', hint: 'Am7 colors the famous descending bass line' },
     ],
   },
+
+  // ── Inversions (unlocked after root-position mastery) ──────────────────────
+
+  {
+    id: 'major_inv1',
+    name: 'Major (1st inv)',
+    short: 'maj¹',
+    semitones: [0, 3, 8], // 3rd in bass: e.g. E–G–C
+    color: '#27ae60',
+    character: 'Bright major quality, but lighter — the 3rd in the bass creates smooth upward voice leading; less grounded than root position',
+    songs: [
+      { title: 'Something — Beatles', hint: 'C/E (I6) gives the verse its characteristic smooth, lifted quality' },
+      { title: 'Let It Be — Beatles', hint: 'C/E passing chord in the verse; notice the lighter feel vs. root C' },
+      { title: 'Ode to Joy — Beethoven', hint: 'I6 chords create smooth voice leading throughout the melody' },
+    ],
+  },
+  {
+    id: 'major_inv2',
+    name: 'Major (2nd inv)',
+    short: 'maj²',
+    semitones: [0, 5, 9], // 5th in bass: e.g. G–C–E
+    color: '#1e8449',
+    character: 'Bright but unstable — the 5th in the bass creates a floating, suspended tension; commonly heard at cadences before resolution',
+    songs: [
+      { title: 'Cadential 6/4 in classical music', hint: 'the I6/4 just before a V chord — listen for the floating, anticipatory feeling' },
+      { title: 'Don\'t Stop Believin\' — Journey', hint: 'the piano intro includes this unstable 2nd-inversion color' },
+      { title: 'Wedding marches and hymns', hint: 'the 2nd inversion often appears at melodic climaxes before a strong cadence' },
+    ],
+  },
+  {
+    id: 'minor_inv1',
+    name: 'Minor (1st inv)',
+    short: 'min¹',
+    semitones: [0, 4, 9], // minor 3rd in bass: e.g. Eb–G–C
+    color: '#2980b9',
+    character: 'Dark minor quality, but lighter in the bass — the minor 3rd below creates a descending bass-line feel; bittersweet and mobile',
+    songs: [
+      { title: 'Stairway to Heaven — Led Zeppelin', hint: 'Am/C (Am 1st inv) in the iconic descending intro bass line' },
+      { title: 'Scarborough Fair — Simon & Garfunkel', hint: 'i6 chords shape the descending chromatic bass throughout' },
+      { title: 'The Sound of Silence — Simon & Garfunkel', hint: 'minor 1st inversions anchor the falling bass passages' },
+    ],
+  },
+  {
+    id: 'minor_inv2',
+    name: 'Minor (2nd inv)',
+    short: 'min²',
+    semitones: [0, 5, 8], // 5th in bass: e.g. G–C–Eb
+    color: '#1a5276',
+    character: 'Minor quality with a floating, unstable bass — the 5th below creates an ambiguous, suspended tension similar to major 2nd inv but darker',
+    songs: [
+      { title: 'Ave Maria — Schubert', hint: 'minor 2nd inversions float through the harmonic fabric under the melody' },
+      { title: 'Minor cadential 6/4', hint: 'appears before cadential moments in minor keys — same floating feeling as major but darker' },
+      { title: 'Nocturnes — Chopin', hint: 'Chopin uses i6/4 inversions to create yearning, unresolved passages' },
+    ],
+  },
 ];
 
 const CHORD_MAP = Object.fromEntries(CHORDS.map(c => [c.id, c]));
 
-// Pedagogical unlock order — start with the most fundamental contrast (major vs minor)
+// Pedagogical unlock order — start with the most fundamental contrast (major vs minor),
+// then build through root-position qualities, then add inversions once the ear is trained.
 const CHORD_UNLOCK_GROUPS = [
-  { chords: ['major', 'minor'], minMasteryToUnlockNext: 0.60 },
-  { chords: ['diminished'],     minMasteryToUnlockNext: 0.62 },
-  { chords: ['augmented'],      minMasteryToUnlockNext: 0.65 },
-  { chords: ['dom7', 'maj7'],   minMasteryToUnlockNext: 0.65 },
-  { chords: ['min7'],           minMasteryToUnlockNext: 0.65 },
+  { chords: ['major', 'minor'],                 minMasteryToUnlockNext: 0.60 },
+  { chords: ['diminished'],                     minMasteryToUnlockNext: 0.62 },
+  { chords: ['augmented'],                      minMasteryToUnlockNext: 0.65 },
+  { chords: ['dom7', 'maj7'],                   minMasteryToUnlockNext: 0.65 },
+  { chords: ['min7'],                           minMasteryToUnlockNext: 0.68 },
+  // Inversions: introduced after all root-position qualities are solid
+  { chords: ['major_inv1', 'minor_inv1'],       minMasteryToUnlockNext: 0.68 },
+  { chords: ['major_inv2', 'minor_inv2'],       minMasteryToUnlockNext: 0.70 },
 ];

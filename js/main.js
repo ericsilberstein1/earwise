@@ -113,7 +113,7 @@ const App = {
 
     if (this.session.module === 'chords') {
       const chord = CHORD_MAP[this.currentCard.intervalId];
-      Audio.playChord(chord.semitones).then(onDone);
+      Audio.playChord(chord.semitones, this.settings.playArpeggio !== false).then(onDone);
     } else {
       const interval = INTERVAL_MAP[this.currentCard.intervalId];
       Audio.play(interval.semitones, this.currentCard.direction).then(onDone);
