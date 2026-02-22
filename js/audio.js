@@ -203,9 +203,10 @@ const Audio = (() => {
   function playChord(semitones, playArpeggio = true) {
     // semitones is an array like [0, 4, 7]
     const maxOffset = Math.max(...semitones);
-    // Keep all notes in C3–C5 range (MIDI 48–72)
-    const minRoot = 48;
-    const maxRoot = Math.min(67, 72 - maxOffset); // C3 to G4 at most
+    // C4–C5 range (MIDI 60–72): low enough for warmth, high enough for clarity.
+    // Below C4 intervals become muddy (critical bandwidth effect).
+    const minRoot = 60;
+    const maxRoot = Math.min(69, 72 - maxOffset); // C4 to A4 at most
     const rootMidi = Math.round(minRoot + Math.random() * (maxRoot - minRoot));
     const freqs = semitones.map(s => midiToFreq(rootMidi + s));
 
