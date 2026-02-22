@@ -582,6 +582,19 @@ main { flex: 1; padding: 24px 0 32px; }
   border-color: var(--accent);
   color: var(--accent);
 }
+.btn-relock {
+  font-size: 0.7rem;
+  padding: 1px 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.mastery-cell:hover .btn-relock { opacity: 0.6; }
+.btn-relock:hover { opacity: 1 !important; }
 
 .summary-actions {
   display: flex;

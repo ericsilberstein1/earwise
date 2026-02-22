@@ -27,6 +27,12 @@ class ChordDeck {
     return cards.reduce((sum, c) => sum + c.mastery, 0) / cards.length;
   }
 
+  relock(chordId) {
+    const card = this.getCard(chordId);
+    if (card && !card.isLocked) { card.isLocked = true; return true; }
+    return false;
+  }
+
   unlock(chordId) {
     const card = this.getCard(chordId);
     if (card && card.isLocked) {

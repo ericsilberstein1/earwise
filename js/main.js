@@ -41,11 +41,7 @@ const App = {
   startSession() {
     const isChords = this.activeModule === 'chords';
 
-    // Intervals auto-unlock as before; chords use the opt-in prompt at session end.
-    if (!isChords) {
-      const unlocks = this.progression.checkUnlocks();
-      if (unlocks.length > 0) this._save();
-    }
+    // No auto-unlocks at session start — both modules use the opt-in prompt at session end.
 
     const queue = isChords
       ? this.chordProgression.buildSession(this.settings.sessionSize)
@@ -128,25 +124,44 @@ const App = {
     Audio.playChordFromLastRoot(chord.semitones, this.settings.playArpeggio !== false);
   },
 
-  // Called when user clicks "Unlock" on the summary screen
   confirmUnlocks() {
-    this.chordProgression.applyUnlocks();
+    if (this.activeModule === 'chords') this.chordProgression.applyUnlocks();
+    else this.progression.applyUnlocks();
     this._save();
     UI.renderHome();
-    UI.toast('New chords unlocked!', 'success');
+    UI.toast('New items unlocked!', 'success');
   },
 
-  // Called when user clicks "Keep practicing" on the summary screen
   deferUnlocks() {
     UI.renderHome();
   },
 
-  // Called from the mastery grid unlock button — bypasses the progression gate
   manualUnlockChord(chordId) {
     this.chordDeck.unlock(chordId);
     this._save();
     UI.renderHome();
     UI.toast(`${CHORD_MAP[chordId].name} unlocked`, 'success');
+  },
+
+  manualUnlockInterval(intervalId, direction) {
+    this.deck.unlock(intervalId, direction);
+    this._save();
+    UI.renderHome();
+    UI.toast(`${INTERVAL_MAP[intervalId].name} (${direction}) unlocked`, 'success');
+  },
+
+  relockChord(chordId) {
+    this.chordDeck.relock(chordId);
+    this._save();
+    UI.renderHome();
+    UI.toast(`${CHORD_MAP[chordId].name} removed from practice`, 'info');
+  },
+
+  relockInterval(intervalId, direction) {
+    this.deck.relock(intervalId, direction);
+    this._save();
+    UI.renderHome();
+    UI.toast(`${INTERVAL_MAP[intervalId].name} (${direction}) removed from practice`, 'info');
   },
 
   _maybeShowSilentHint() {
@@ -190,10 +205,11 @@ const App = {
 
   _endSession() {
     const isChords = this.session.module === 'chords';
-    // For chords, only peek — the user confirms unlocks via the summary prompt.
-    // For intervals, auto-unlock as before.
-    const newUnlocks = isChords ? [] : this.progression.checkUnlocks();
-    const pendingUnlocks = isChords ? this.chordProgression.peekUnlocks() : [];
+    // Both modules: peek only — user confirms via the summary prompt.
+    const newUnlocks = [];
+    const pendingUnlocks = isChords
+      ? this.chordProgression.peekUnlocks()
+      : this.progression.peekUnlocks();
 
     const masteryChanges = Object.entries(this.session.masterySnapshots)
       .filter(([id]) => this.session.answeredThisSession.has(id))

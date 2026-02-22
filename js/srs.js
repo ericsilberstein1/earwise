@@ -153,6 +153,13 @@ class SRSDeck {
     return cards.reduce((sum, c) => sum + c.mastery, 0) / cards.length;
   }
 
+  // Relock a card — removes it from sessions, keeps mastery intact.
+  relock(intervalId, direction) {
+    const card = this.getCard(intervalId, direction);
+    if (card && !card.isLocked) { card.isLocked = true; return true; }
+    return false;
+  }
+
   // Unlock a card (called by progression system)
   unlock(intervalId, direction) {
     const card = this.getCard(intervalId, direction);

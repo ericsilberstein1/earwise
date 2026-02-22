@@ -26,18 +26,67 @@ class Progression {
     return newUnlocks;
   }
 
-  // Check if we should unlock new intervals or directions. Returns array of newly unlocked cards.
-  checkUnlocks() {
-    const newUnlocks = [];
+  static get MIN_ANSWERS_TO_UNLOCK() { return 20; }
 
-    // --- Check if next ascending group should unlock ---
+  // Returns what WOULD unlock without doing it.
+  peekUnlocks() {
+    const pending = [];
+
+    // --- Next ascending group ---
     const nextGroupIndex = this.unlockedGroupIndex + 1;
     if (nextGroupIndex < UNLOCK_GROUPS.length) {
       const currentGroup = UNLOCK_GROUPS[this.unlockedGroupIndex];
       const currentGroupCards = currentGroup.intervals
         .map(id => this.deck.getCard(id, 'ascending'))
         .filter(Boolean);
+      if (currentGroupCards.length > 0) {
+        const avgMastery = this.deck.avgMastery(currentGroupCards);
+        const allSeasoned = currentGroupCards.every(
+          c => (c.totalAnswers || 0) >= Progression.MIN_ANSWERS_TO_UNLOCK
+        );
+        if (avgMastery >= currentGroup.minMasteryToUnlockNext && allSeasoned) {
+          UNLOCK_GROUPS[nextGroupIndex].intervals.forEach(id =>
+            pending.push({ intervalId: id, direction: 'ascending' })
+          );
+        }
+      }
+    }
 
+    // --- Descending (per interval) ---
+    for (const interval of INTERVALS) {
+      const ascCard  = this.deck.getCard(interval.id, 'ascending');
+      const descCard = this.deck.getCard(interval.id, 'descending');
+      if (ascCard && !ascCard.isLocked && descCard && descCard.isLocked) {
+        const seasoned = (ascCard.totalAnswers || 0) >= Progression.MIN_ANSWERS_TO_UNLOCK;
+        if (ascCard.mastery >= DIRECTION_THRESHOLDS.unlockDescending && seasoned)
+          pending.push({ intervalId: interval.id, direction: 'descending' });
+      }
+    }
+
+    // --- Harmonic (per interval) ---
+    for (const interval of INTERVALS) {
+      const descCard = this.deck.getCard(interval.id, 'descending');
+      const harmCard = this.deck.getCard(interval.id, 'harmonic');
+      if (descCard && !descCard.isLocked && harmCard && harmCard.isLocked) {
+        const seasoned = (descCard.totalAnswers || 0) >= Progression.MIN_ANSWERS_TO_UNLOCK;
+        if (descCard.mastery >= DIRECTION_THRESHOLDS.unlockHarmonic && seasoned)
+          pending.push({ intervalId: interval.id, direction: 'harmonic' });
+      }
+    }
+
+    return pending;
+  }
+
+  // Actually perform all pending unlocks. Call only after user confirms.
+  applyUnlocks() {
+    const newUnlocks = [];
+
+    const nextGroupIndex = this.unlockedGroupIndex + 1;
+    if (nextGroupIndex < UNLOCK_GROUPS.length) {
+      const currentGroup = UNLOCK_GROUPS[this.unlockedGroupIndex];
+      const currentGroupCards = currentGroup.intervals
+        .map(id => this.deck.getCard(id, 'ascending'))
+        .filter(Boolean);
       if (currentGroupCards.length > 0) {
         const avgMastery = this.deck.avgMastery(currentGroupCards);
         if (avgMastery >= currentGroup.minMasteryToUnlockNext) {
@@ -47,33 +96,35 @@ class Progression {
       }
     }
 
-    // --- Check descending unlocks (per interval) ---
     for (const interval of INTERVALS) {
-      const ascCard = this.deck.getCard(interval.id, 'ascending');
+      const ascCard  = this.deck.getCard(interval.id, 'ascending');
       const descCard = this.deck.getCard(interval.id, 'descending');
-
       if (ascCard && !ascCard.isLocked && descCard && descCard.isLocked) {
         if (ascCard.mastery >= DIRECTION_THRESHOLDS.unlockDescending) {
-          const unlocked = this.deck.unlock(interval.id, 'descending');
-          if (unlocked) newUnlocks.push({ intervalId: interval.id, direction: 'descending' });
+          if (this.deck.unlock(interval.id, 'descending'))
+            newUnlocks.push({ intervalId: interval.id, direction: 'descending' });
         }
       }
     }
 
-    // --- Check harmonic unlocks (per interval) ---
     for (const interval of INTERVALS) {
       const descCard = this.deck.getCard(interval.id, 'descending');
       const harmCard = this.deck.getCard(interval.id, 'harmonic');
-
       if (descCard && !descCard.isLocked && harmCard && harmCard.isLocked) {
         if (descCard.mastery >= DIRECTION_THRESHOLDS.unlockHarmonic) {
-          const unlocked = this.deck.unlock(interval.id, 'harmonic');
-          if (unlocked) newUnlocks.push({ intervalId: interval.id, direction: 'harmonic' });
+          if (this.deck.unlock(interval.id, 'harmonic'))
+            newUnlocks.push({ intervalId: interval.id, direction: 'harmonic' });
         }
       }
     }
 
     return newUnlocks;
+  }
+
+  // Legacy: peek + apply in one step.
+  checkUnlocks() {
+    if (this.peekUnlocks().length > 0) return this.applyUnlocks();
+    return [];
   }
 
   // Build a session queue of cards to practice

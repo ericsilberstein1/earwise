@@ -67,7 +67,10 @@ const UI = (() => {
 
       for (const dir of ['ascending', 'descending', 'harmonic']) {
         const card = _app.deck.getCard(interval.id, dir);
-        bars.appendChild(_makeMasteryCell(card, _dirIcon(dir)));
+        bars.appendChild(_makeMasteryCell(card, _dirIcon(dir), {
+          onUnlock: card?.isLocked  ? () => _app.manualUnlockInterval(interval.id, dir) : null,
+          onRelock: !card?.isLocked ? () => _app.relockInterval(interval.id, dir)        : null,
+        }));
       }
 
       row.appendChild(bars);
@@ -91,29 +94,29 @@ const UI = (() => {
 
       const icon = chord.id.endsWith('_inv1') ? '⧫¹' : chord.id.endsWith('_inv2') ? '⧫²' : '⧫';
       const card = _app.chordDeck.getCard(chord.id);
-      bars.appendChild(_makeMasteryCell(card, icon));
-
-      // Manual unlock button on locked rows
-      if (!card || card.isLocked) {
-        const unlockBtn = document.createElement('button');
-        unlockBtn.className = 'btn-manual-unlock';
-        unlockBtn.textContent = '+ unlock';
-        unlockBtn.title = `Manually unlock ${chord.name}`;
-        unlockBtn.addEventListener('click', () => _app.manualUnlockChord(chord.id));
-        row.appendChild(unlockBtn);
-      }
+      bars.appendChild(_makeMasteryCell(card, icon, {
+        onUnlock: card?.isLocked  ? () => _app.manualUnlockChord(chord.id) : null,
+        onRelock: !card?.isLocked ? () => _app.relockChord(chord.id)       : null,
+      }));
 
       row.appendChild(bars);
       container.appendChild(row);
     }
   }
 
-  function _makeMasteryCell(card, iconLabel) {
+  function _makeMasteryCell(card, iconLabel, { onUnlock = null, onRelock = null } = {}) {
     const cell = document.createElement('div');
     cell.className = 'mastery-cell';
     if (!card || card.isLocked) {
       cell.classList.add('locked');
       cell.innerHTML = `<div class="dir-label">${iconLabel}</div><div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>`;
+      if (onUnlock) {
+        const btn = document.createElement('button');
+        btn.className = 'btn-manual-unlock';
+        btn.textContent = '+ unlock';
+        btn.addEventListener('click', onUnlock);
+        cell.appendChild(btn);
+      }
     } else {
       const pct = Math.round(card.mastery * 100);
       const hue = Math.round(card.mastery * 120);
@@ -123,6 +126,14 @@ const UI = (() => {
           <div class="bar-fill" style="width:${pct}%; background: hsl(${hue},70%,48%)"></div>
         </div>
         <div class="bar-pct">${pct}%</div>`;
+      if (onRelock) {
+        const btn = document.createElement('button');
+        btn.className = 'btn-relock';
+        btn.title = 'Remove from practice';
+        btn.textContent = '🔒';
+        btn.addEventListener('click', e => { e.stopPropagation(); onRelock(); });
+        cell.appendChild(btn);
+      }
     }
     return cell;
   }
@@ -344,7 +355,12 @@ const UI = (() => {
     // Pending chord unlocks — show opt-in prompt instead of auto-unlocking
     const unlocksEl = $('summary-unlocks');
     if (pendingUnlocks && pendingUnlocks.length > 0) {
-      const names = pendingUnlocks.map(u => `<strong>${CHORD_MAP[u.chordId].name}</strong>`).join(' + ');
+      const formatUnlock = u => u.chordId
+        ? `<strong>${CHORD_MAP[u.chordId].name}</strong>`
+        : `<strong>${INTERVAL_MAP[u.intervalId].short}</strong> ${_dirIcon(u.direction)}`;
+      const names = pendingUnlocks.length <= 4
+        ? pendingUnlocks.map(formatUnlock).join(' &nbsp; ')
+        : `<strong>${pendingUnlocks.length} new items</strong>`;
       unlocksEl.innerHTML = `
         <div class="unlock-prompt">
           <div class="unlock-prompt-title">✨ Ready to unlock</div>
