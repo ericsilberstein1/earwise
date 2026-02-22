@@ -162,12 +162,11 @@ class Progression {
       if (i > pool.length * 3) break; // safety
     }
 
-    // Shuffle slightly to avoid pure ordering cues, but keep due cards weighted early
-    // Shuffle only the "repeated" portion (after the first pass)
-    const firstPass = Math.min(pool.length, sessionSize);
-    const rest = queue.slice(firstPass);
-    shuffleArray(rest);
-    return [...queue.slice(0, firstPass), ...rest];
+    // Shuffle the full queue — partial shuffling left the first card deterministic
+    // (most overdue / lowest mastery), which becomes a cue. SRS handles which
+    // cards are included; random ordering within the session is better for learning.
+    shuffleArray(queue);
+    return queue;
   }
 
   // Summary of all interval groups and their unlock status
