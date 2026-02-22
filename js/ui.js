@@ -93,6 +93,16 @@ const UI = (() => {
       const card = _app.chordDeck.getCard(chord.id);
       bars.appendChild(_makeMasteryCell(card, icon));
 
+      // Manual unlock button on locked rows
+      if (!card || card.isLocked) {
+        const unlockBtn = document.createElement('button');
+        unlockBtn.className = 'btn-manual-unlock';
+        unlockBtn.textContent = '+ unlock';
+        unlockBtn.title = `Manually unlock ${chord.name}`;
+        unlockBtn.addEventListener('click', () => _app.manualUnlockChord(chord.id));
+        row.appendChild(unlockBtn);
+      }
+
       row.appendChild(bars);
       container.appendChild(row);
     }
@@ -323,7 +333,7 @@ const UI = (() => {
   }
 
   // ── SESSION SUMMARY ─────────────────────────────────────────────────────────
-  function renderSummary({ correct, total, newUnlocks, masteryChanges, module }) {
+  function renderSummary({ correct, total, newUnlocks, pendingUnlocks, masteryChanges, module }) {
     showScreen('screen-summary');
 
     const pct = total > 0 ? Math.round(correct / total * 100) : 0;
@@ -331,17 +341,27 @@ const UI = (() => {
     $('summary-pct').textContent   = `${pct}%`;
     $('summary-emoji').textContent = pct >= 90 ? '🎉' : pct >= 70 ? '👍' : pct >= 50 ? '💪' : '🔄';
 
-    // New unlocks
+    // Pending chord unlocks — show opt-in prompt instead of auto-unlocking
     const unlocksEl = $('summary-unlocks');
-    if (newUnlocks && newUnlocks.length > 0) {
+    if (pendingUnlocks && pendingUnlocks.length > 0) {
+      const names = pendingUnlocks.map(u => `<strong>${CHORD_MAP[u.chordId].name}</strong>`).join(' + ');
+      unlocksEl.innerHTML = `
+        <div class="unlock-prompt">
+          <div class="unlock-prompt-title">✨ Ready to unlock</div>
+          <div class="unlock-prompt-names">${names}</div>
+          <div class="unlock-prompt-actions">
+            <button class="btn btn-secondary" id="btn-defer-unlock">Keep practicing these</button>
+            <button class="btn btn-primary" id="btn-confirm-unlock">Unlock →</button>
+          </div>
+        </div>`;
+      unlocksEl.classList.remove('hidden');
+      $('btn-confirm-unlock').addEventListener('click', () => _app.confirmUnlocks());
+      $('btn-defer-unlock').addEventListener('click',  () => _app.deferUnlocks());
+    } else if (newUnlocks && newUnlocks.length > 0) {
+      // Interval auto-unlocks (shown as before)
       const items = newUnlocks.map(u => {
-        if (module === 'chords') {
-          const ch = CHORD_MAP[u.chordId];
-          return `<li>🔓 <strong>${ch.name}</strong> chord</li>`;
-        } else {
-          const iv = INTERVAL_MAP[u.intervalId];
-          return `<li>🔓 <strong>${iv.name}</strong> ${_dirLabel(u.direction)}</li>`;
-        }
+        const iv = INTERVAL_MAP[u.intervalId];
+        return `<li>🔓 <strong>${iv.name}</strong> ${_dirLabel(u.direction)}</li>`;
       });
       unlocksEl.innerHTML = '<h3>New unlocks!</h3><ul>' + items.join('') + '</ul>';
       unlocksEl.classList.remove('hidden');

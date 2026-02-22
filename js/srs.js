@@ -21,6 +21,7 @@ class SRSCard {
 
     // History: last N responses
     this.history = [];           // [{ correct: bool, responseMs: number, ts: number }]
+    this.totalAnswers = 0;       // lifetime answer count (not capped like history)
   }
 
   // Grade: 0=again, 1=hard, 2=good, 3=easy (mapped from correctness + responseTime)
@@ -76,6 +77,7 @@ class SRSCard {
     // Record history (keep last 20)
     this.history.push({ correct, responseMs, ts: Date.now() });
     if (this.history.length > 20) this.history.shift();
+    this.totalAnswers++;
   }
 
   isDue() {
@@ -103,6 +105,7 @@ class SRSCard {
       introducedAt: this.introducedAt,
       isLocked: this.isLocked,
       history: this.history,
+      totalAnswers: this.totalAnswers,
     };
   }
 

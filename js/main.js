@@ -41,11 +41,8 @@ const App = {
   startSession() {
     const isChords = this.activeModule === 'chords';
 
-    // Check for unlocks before building session
-    if (isChords) {
-      const unlocks = this.chordProgression.checkUnlocks();
-      if (unlocks.length > 0) this._save();
-    } else {
+    // Intervals auto-unlock as before; chords use the opt-in prompt at session end.
+    if (!isChords) {
       const unlocks = this.progression.checkUnlocks();
       if (unlocks.length > 0) this._save();
     }
@@ -131,6 +128,27 @@ const App = {
     Audio.playChordFromLastRoot(chord.semitones, this.settings.playArpeggio !== false);
   },
 
+  // Called when user clicks "Unlock" on the summary screen
+  confirmUnlocks() {
+    this.chordProgression.applyUnlocks();
+    this._save();
+    UI.renderHome();
+    UI.toast('New chords unlocked!', 'success');
+  },
+
+  // Called when user clicks "Keep practicing" on the summary screen
+  deferUnlocks() {
+    UI.renderHome();
+  },
+
+  // Called from the mastery grid unlock button — bypasses the progression gate
+  manualUnlockChord(chordId) {
+    this.chordDeck.unlock(chordId);
+    this._save();
+    UI.renderHome();
+    UI.toast(`${CHORD_MAP[chordId].name} unlocked`, 'success');
+  },
+
   _maybeShowSilentHint() {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (!isMobile) return;
@@ -172,9 +190,10 @@ const App = {
 
   _endSession() {
     const isChords = this.session.module === 'chords';
-    const newUnlocks = isChords
-      ? this.chordProgression.checkUnlocks()
-      : this.progression.checkUnlocks();
+    // For chords, only peek — the user confirms unlocks via the summary prompt.
+    // For intervals, auto-unlock as before.
+    const newUnlocks = isChords ? [] : this.progression.checkUnlocks();
+    const pendingUnlocks = isChords ? this.chordProgression.peekUnlocks() : [];
 
     const masteryChanges = Object.entries(this.session.masterySnapshots)
       .filter(([id]) => this.session.answeredThisSession.has(id))
@@ -216,6 +235,7 @@ const App = {
       correct: this.session.correct,
       total: this.session.total,
       newUnlocks,
+      pendingUnlocks,
       masteryChanges,
       module: this.session.module,
     });

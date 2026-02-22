@@ -542,6 +542,47 @@ main { flex: 1; padding: 24px 0 32px; }
 }
 .change-row:last-child { border-bottom: none; }
 
+/* Unlock prompt in summary screen */
+.unlock-prompt {
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.unlock-prompt-title {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.unlock-prompt-names {
+  font-size: 1.1rem;
+  margin-bottom: 14px;
+}
+.unlock-prompt-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Manual unlock button on locked mastery rows */
+.btn-manual-unlock {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  color: var(--text-dim);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-manual-unlock:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .summary-actions {
   display: flex;
   gap: 10px;

@@ -80,26 +80,44 @@ class ChordProgression {
     return newUnlocks;
   }
 
-  checkUnlocks() {
-    const newUnlocks = [];
+  // How many total answers each card must have before an auto-unlock can trigger.
+  // Prevents lucky-streak unlocks after only a handful of questions.
+  static get MIN_ANSWERS_TO_UNLOCK() { return 20; }
+
+  // Returns the chords that WOULD unlock next, without doing anything.
+  // Empty array means the threshold hasn't been reached yet.
+  peekUnlocks() {
     const nextGroupIndex = this.unlockedGroupIndex + 1;
+    if (nextGroupIndex >= CHORD_UNLOCK_GROUPS.length) return [];
 
-    if (nextGroupIndex < CHORD_UNLOCK_GROUPS.length) {
-      const currentGroup = CHORD_UNLOCK_GROUPS[this.unlockedGroupIndex];
-      const currentGroupCards = currentGroup.chords
-        .map(id => this.deck.getCard(id))
-        .filter(Boolean);
+    const currentGroup = CHORD_UNLOCK_GROUPS[this.unlockedGroupIndex];
+    const currentGroupCards = currentGroup.chords
+      .map(id => this.deck.getCard(id))
+      .filter(Boolean);
+    if (currentGroupCards.length === 0) return [];
 
-      if (currentGroupCards.length > 0) {
-        const avgMastery = this.deck.avgMastery(currentGroupCards);
-        if (avgMastery >= currentGroup.minMasteryToUnlockNext) {
-          const unlocked = this._unlockGroup(nextGroupIndex);
-          newUnlocks.push(...unlocked);
-        }
-      }
+    const avgMastery = this.deck.avgMastery(currentGroupCards);
+    const allSeasoned = currentGroupCards.every(
+      c => (c.totalAnswers || 0) >= ChordProgression.MIN_ANSWERS_TO_UNLOCK
+    );
+
+    if (avgMastery >= currentGroup.minMasteryToUnlockNext && allSeasoned) {
+      return CHORD_UNLOCK_GROUPS[nextGroupIndex].chords.map(id => ({ chordId: id }));
     }
+    return [];
+  }
 
-    return newUnlocks;
+  // Actually perform the unlock of the next group. Call only after user confirms.
+  applyUnlocks() {
+    const nextGroupIndex = this.unlockedGroupIndex + 1;
+    if (nextGroupIndex >= CHORD_UNLOCK_GROUPS.length) return [];
+    return this._unlockGroup(nextGroupIndex);
+  }
+
+  // Legacy: peek + apply in one step (still used for the initial group-0 check on session start).
+  checkUnlocks() {
+    if (this.peekUnlocks().length > 0) return this.applyUnlocks();
+    return [];
   }
 
   buildSession(sessionSize = 20) {
