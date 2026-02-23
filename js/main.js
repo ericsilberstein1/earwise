@@ -16,7 +16,6 @@ const App = {
   session: null,      // { queue, index, correct, total, masterySnapshots, answeredThisSession, module }
   currentCard: null,
   questionStartTime: null,
-  seenCards: new Set(),
 
   init() {
     this.deck            = Storage.loadDeck()             || new SRSDeck();
@@ -69,7 +68,7 @@ const App = {
       }
     }
 
-    this.seenCards = new Set();
+
     this._presentQuestion();
   },
 
@@ -81,12 +80,7 @@ const App = {
 
     this.currentCard = this.session.queue[this.session.index];
     const card = this.currentCard;
-    const isNew = card.introducedAt &&
-      (Date.now() - card.introducedAt < 120 * 1000) &&
-      !this.seenCards.has(card.id);
-
-    this.seenCards.add(card.id);
-    UI.renderQuestion(card, this.session.index, this.session.total, isNew, this.session.module);
+    UI.renderQuestion(card, this.session.index, this.session.total, this.session.module);
 
     if (this.settings.autoPlay) {
       this._playCurrentCard();

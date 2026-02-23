@@ -143,7 +143,7 @@ const UI = (() => {
   }
 
   // ── SESSION / QUESTION ──────────────────────────────────────────────────────
-  function renderQuestion(card, sessionIndex, sessionTotal, isNewCard, module) {
+  function renderQuestion(card, sessionIndex, sessionTotal, module) {
     showScreen('screen-question');
 
     const pct = Math.round((sessionIndex / sessionTotal) * 100);
@@ -168,14 +168,7 @@ const UI = (() => {
     feedbackEl.className = 'feedback-area hidden';
     feedbackEl.innerHTML = '';
 
-    // New card badge — show direction only, never the name (would give away the answer)
-    const newBadge = $('new-badge');
-    if (isNewCard) {
-      newBadge.classList.remove('hidden');
-      newBadge.textContent = module === 'chords' ? '★ New chord' : `★ New interval`;
-    } else {
-      newBadge.classList.add('hidden');
-    }
+    $('new-badge').classList.add('hidden');
 
     // Answer buttons
     _renderAnswerButtons(module);
