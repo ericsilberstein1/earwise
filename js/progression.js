@@ -156,10 +156,8 @@ class Progression {
     // If session is smaller than sessionSize, cycle through pool again
     let i = 0;
     while (queue.length < sessionSize && pool.length > 0) {
-      const card = pool[i % pool.length];
-      queue.push(card);
+      queue.push(pool[i % pool.length]);
       i++;
-      if (i > pool.length * 3) break; // safety
     }
 
     // Shuffle the full queue — partial shuffling left the first card deterministic

@@ -503,6 +503,11 @@ main { flex: 1; padding: 24px 0 32px; }
   padding: 28px 24px;
   text-align: center;
   margin-bottom: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.summary-card--perfect {
+  border-color: #f1c40f;
+  box-shadow: 0 0 24px rgba(241, 196, 15, 0.25);
 }
 
 #summary-emoji { font-size: 3rem; margin-bottom: 8px; }
@@ -510,8 +515,17 @@ main { flex: 1; padding: 24px 0 32px; }
 #summary-pct {
   font-size: 1.1rem;
   color: var(--text-dim);
-  margin-bottom: 20px;
+  margin-bottom: 4px;
 }
+#summary-perfect-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f1c40f;
+  margin-bottom: 16px;
+}
+#summary-perfect-label.hidden { display: none; }
 
 #summary-unlocks, #summary-changes {
   background: var(--surface);

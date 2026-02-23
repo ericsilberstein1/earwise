@@ -76,7 +76,7 @@ const INTERVALS = [
       ],
       descending: [
         { title: 'Swing Low, Sweet Chariot', hint: 'opening descent' },
-        { title: 'Beethoven\'s 5th', hint: 'the famous motif ends with a m3 descent; 5th symphony' },
+        { title: 'Loch Lomond', hint: '"You\'ll take the HIGH road" — descending major 3rd' },
       ],
       harmonic: [
         { title: 'Major chord inner interval', hint: 'bright, happy sound' },

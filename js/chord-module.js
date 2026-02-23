@@ -140,7 +140,6 @@ class ChordProgression {
     while (queue.length < sessionSize && pool.length > 0) {
       queue.push(pool[i % pool.length]);
       i++;
-      if (i > pool.length * 4) break;
     }
 
     // Shuffle so the order isn't predictable (including same chord back-to-back,

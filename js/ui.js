@@ -168,14 +168,11 @@ const UI = (() => {
     feedbackEl.className = 'feedback-area hidden';
     feedbackEl.innerHTML = '';
 
-    // New card badge
+    // New card badge — show direction only, never the name (would give away the answer)
     const newBadge = $('new-badge');
     if (isNewCard) {
-      const label = module === 'chords'
-        ? `New: ${CHORD_MAP[card.intervalId].name}`
-        : `New: ${INTERVAL_MAP[card.intervalId].name} (${card.direction})`;
       newBadge.classList.remove('hidden');
-      newBadge.textContent = label;
+      newBadge.textContent = module === 'chords' ? '★ New chord' : `★ New interval`;
     } else {
       newBadge.classList.add('hidden');
     }
@@ -348,9 +345,12 @@ const UI = (() => {
     showScreen('screen-summary');
 
     const pct = total > 0 ? Math.round(correct / total * 100) : 0;
+    const perfect = pct === 100;
     $('summary-score').textContent = `${correct} / ${total}`;
     $('summary-pct').textContent   = `${pct}%`;
-    $('summary-emoji').textContent = pct >= 90 ? '🎉' : pct >= 70 ? '👍' : pct >= 50 ? '💪' : '🔄';
+    $('summary-emoji').textContent = perfect ? '⭐' : pct >= 90 ? '🎉' : pct >= 70 ? '👍' : pct >= 50 ? '💪' : '🔄';
+    $('summary-card').classList.toggle('summary-card--perfect', perfect);
+    $('summary-perfect-label').classList.toggle('hidden', !perfect);
 
     // Pending chord unlocks — show opt-in prompt instead of auto-unlocking
     const unlocksEl = $('summary-unlocks');
