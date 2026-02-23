@@ -366,8 +366,8 @@ const UI = (() => {
           <div class="unlock-prompt-title">✨ Ready to unlock</div>
           <div class="unlock-prompt-names">${names}</div>
           <div class="unlock-prompt-actions">
-            <button class="btn btn-secondary" id="btn-defer-unlock">Keep practicing these</button>
-            <button class="btn btn-primary" id="btn-confirm-unlock">Unlock →</button>
+            <button class="btn btn-secondary" id="btn-defer-unlock">Not yet</button>
+            <button class="btn btn-primary" id="btn-confirm-unlock">Unlock new →</button>
           </div>
         </div>`;
       unlocksEl.classList.remove('hidden');

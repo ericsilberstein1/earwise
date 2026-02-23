@@ -32,27 +32,7 @@ class Progression {
   peekUnlocks() {
     const pending = [];
 
-    // --- Next ascending group ---
-    const nextGroupIndex = this.unlockedGroupIndex + 1;
-    if (nextGroupIndex < UNLOCK_GROUPS.length) {
-      const currentGroup = UNLOCK_GROUPS[this.unlockedGroupIndex];
-      const currentGroupCards = currentGroup.intervals
-        .map(id => this.deck.getCard(id, 'ascending'))
-        .filter(Boolean);
-      if (currentGroupCards.length > 0) {
-        const avgMastery = this.deck.avgMastery(currentGroupCards);
-        const allSeasoned = currentGroupCards.every(
-          c => (c.totalAnswers || 0) >= Progression.MIN_ANSWERS_TO_UNLOCK
-        );
-        if (avgMastery >= currentGroup.minMasteryToUnlockNext && allSeasoned) {
-          UNLOCK_GROUPS[nextGroupIndex].intervals.forEach(id =>
-            pending.push({ intervalId: id, direction: 'ascending' })
-          );
-        }
-      }
-    }
-
-    // --- Descending (per interval) ---
+    // --- Descending (per interval) — checked first; takes priority over new groups ---
     for (const interval of INTERVALS) {
       const ascCard  = this.deck.getCard(interval.id, 'ascending');
       const descCard = this.deck.getCard(interval.id, 'descending');
@@ -74,6 +54,28 @@ class Progression {
       }
     }
 
+    // --- Next ascending group — only if no direction unlocks are pending ---
+    if (pending.length === 0) {
+      const nextGroupIndex = this.unlockedGroupIndex + 1;
+      if (nextGroupIndex < UNLOCK_GROUPS.length) {
+        const currentGroup = UNLOCK_GROUPS[this.unlockedGroupIndex];
+        const currentGroupCards = currentGroup.intervals
+          .map(id => this.deck.getCard(id, 'ascending'))
+          .filter(Boolean);
+        if (currentGroupCards.length > 0) {
+          const avgMastery = this.deck.avgMastery(currentGroupCards);
+          const allSeasoned = currentGroupCards.every(
+            c => (c.totalAnswers || 0) >= Progression.MIN_ANSWERS_TO_UNLOCK
+          );
+          if (avgMastery >= currentGroup.minMasteryToUnlockNext && allSeasoned) {
+            UNLOCK_GROUPS[nextGroupIndex].intervals.forEach(id =>
+              pending.push({ intervalId: id, direction: 'ascending' })
+            );
+          }
+        }
+      }
+    }
+
     return pending;
   }
 
@@ -81,21 +83,7 @@ class Progression {
   applyUnlocks() {
     const newUnlocks = [];
 
-    const nextGroupIndex = this.unlockedGroupIndex + 1;
-    if (nextGroupIndex < UNLOCK_GROUPS.length) {
-      const currentGroup = UNLOCK_GROUPS[this.unlockedGroupIndex];
-      const currentGroupCards = currentGroup.intervals
-        .map(id => this.deck.getCard(id, 'ascending'))
-        .filter(Boolean);
-      if (currentGroupCards.length > 0) {
-        const avgMastery = this.deck.avgMastery(currentGroupCards);
-        if (avgMastery >= currentGroup.minMasteryToUnlockNext) {
-          const unlocked = this._unlockGroup(nextGroupIndex);
-          if (unlocked) newUnlocks.push(...unlocked);
-        }
-      }
-    }
-
+    // Apply direction unlocks first (same priority order as peekUnlocks)
     for (const interval of INTERVALS) {
       const ascCard  = this.deck.getCard(interval.id, 'ascending');
       const descCard = this.deck.getCard(interval.id, 'descending');
@@ -114,6 +102,24 @@ class Progression {
         if (descCard.mastery >= DIRECTION_THRESHOLDS.unlockHarmonic) {
           if (this.deck.unlock(interval.id, 'harmonic'))
             newUnlocks.push({ intervalId: interval.id, direction: 'harmonic' });
+        }
+      }
+    }
+
+    // Only unlock next ascending group if no direction unlocks were applied
+    if (newUnlocks.length === 0) {
+      const nextGroupIndex = this.unlockedGroupIndex + 1;
+      if (nextGroupIndex < UNLOCK_GROUPS.length) {
+        const currentGroup = UNLOCK_GROUPS[this.unlockedGroupIndex];
+        const currentGroupCards = currentGroup.intervals
+          .map(id => this.deck.getCard(id, 'ascending'))
+          .filter(Boolean);
+        if (currentGroupCards.length > 0) {
+          const avgMastery = this.deck.avgMastery(currentGroupCards);
+          if (avgMastery >= currentGroup.minMasteryToUnlockNext) {
+            const unlocked = this._unlockGroup(nextGroupIndex);
+            if (unlocked) newUnlocks.push(...unlocked);
+          }
         }
       }
     }
