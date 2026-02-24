@@ -263,7 +263,7 @@ main { flex: 1; padding: 24px 0 32px; }
   flex-direction: column;
   gap: 3px;
 }
-.mastery-cell.locked { opacity: 0.3; }
+.mastery-cell.locked { opacity: 0.45; }
 
 .dir-label {
   font-size: 0.65rem;

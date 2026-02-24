@@ -84,11 +84,13 @@ class Progression {
     const newUnlocks = [];
 
     // Apply direction unlocks first (same priority order as peekUnlocks)
+    // Must match peekUnlocks exactly — including the seasoned gate.
     for (const interval of INTERVALS) {
       const ascCard  = this.deck.getCard(interval.id, 'ascending');
       const descCard = this.deck.getCard(interval.id, 'descending');
       if (ascCard && !ascCard.isLocked && descCard && descCard.isLocked) {
-        if (ascCard.mastery >= DIRECTION_THRESHOLDS.unlockDescending) {
+        const seasoned = (ascCard.totalAnswers || 0) >= Progression.MIN_ANSWERS_TO_UNLOCK;
+        if (ascCard.mastery >= DIRECTION_THRESHOLDS.unlockDescending && seasoned) {
           if (this.deck.unlock(interval.id, 'descending'))
             newUnlocks.push({ intervalId: interval.id, direction: 'descending' });
         }
@@ -99,7 +101,8 @@ class Progression {
       const descCard = this.deck.getCard(interval.id, 'descending');
       const harmCard = this.deck.getCard(interval.id, 'harmonic');
       if (descCard && !descCard.isLocked && harmCard && harmCard.isLocked) {
-        if (descCard.mastery >= DIRECTION_THRESHOLDS.unlockHarmonic) {
+        const seasoned = (descCard.totalAnswers || 0) >= Progression.MIN_ANSWERS_TO_UNLOCK;
+        if (descCard.mastery >= DIRECTION_THRESHOLDS.unlockHarmonic && seasoned) {
           if (this.deck.unlock(interval.id, 'harmonic'))
             newUnlocks.push({ intervalId: interval.id, direction: 'harmonic' });
         }

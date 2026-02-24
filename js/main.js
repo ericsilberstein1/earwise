@@ -217,7 +217,7 @@ const App = {
           module: this.session.module,
         };
       })
-      .filter(ch => Math.abs(ch.delta) > 0.001);
+      .filter(() => true); // show all practiced cards, including no-change (delta=0)
 
     this.stats.totalSessions++;
     const today = new Date().toDateString();
