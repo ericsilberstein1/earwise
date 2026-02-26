@@ -117,7 +117,21 @@ class ChordProgression {
   applyUnlocks() {
     const nextGroupIndex = this.unlockedGroupIndex + 1;
     if (nextGroupIndex >= CHORD_UNLOCK_GROUPS.length) return [];
-    return this._unlockGroup(nextGroupIndex);
+
+    const currentGroup = CHORD_UNLOCK_GROUPS[this.unlockedGroupIndex];
+    const currentGroupCards = currentGroup.chords
+      .map(id => this.deck.getCard(id))
+      .filter(Boolean);
+    if (currentGroupCards.length === 0) return [];
+
+    const avgMastery = this.deck.avgMastery(currentGroupCards);
+    const allSeasoned = currentGroupCards.every(
+      c => (c.totalAnswers || 0) >= ChordProgression.MIN_ANSWERS_TO_UNLOCK
+    );
+    if (avgMastery >= currentGroup.minMasteryToUnlockNext && allSeasoned) {
+      return this._unlockGroup(nextGroupIndex);
+    }
+    return [];
   }
 
   // Legacy: peek + apply in one step (still used for the initial group-0 check on session start).

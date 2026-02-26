@@ -73,7 +73,6 @@ const Storage = (() => {
       autoAdvance: false,       // auto-advance after correct answer
       showSongsOn: 'wrong',    // 'always' | 'wrong' | 'never'
       sessionSize: 20,
-      directionFilter: 'all',  // 'all' | 'ascending' | 'descending' | 'harmonic'
       playArpeggio: true,       // play ascending arpeggio sweep after chord block
     };
     try {

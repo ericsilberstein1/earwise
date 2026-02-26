@@ -119,7 +119,10 @@ class Progression {
           .filter(Boolean);
         if (currentGroupCards.length > 0) {
           const avgMastery = this.deck.avgMastery(currentGroupCards);
-          if (avgMastery >= currentGroup.minMasteryToUnlockNext) {
+          const allSeasoned = currentGroupCards.every(
+            c => (c.totalAnswers || 0) >= Progression.MIN_ANSWERS_TO_UNLOCK
+          );
+          if (avgMastery >= currentGroup.minMasteryToUnlockNext && allSeasoned) {
             const unlocked = this._unlockGroup(nextGroupIndex);
             if (unlocked) newUnlocks.push(...unlocked);
           }
