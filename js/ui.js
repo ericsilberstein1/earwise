@@ -334,7 +334,7 @@ const UI = (() => {
   }
 
   // ── SESSION SUMMARY ─────────────────────────────────────────────────────────
-  function renderSummary({ correct, total, newUnlocks, pendingUnlocks, masteryChanges, module }) {
+  function renderSummary({ correct, total, pendingUnlocks, masteryChanges, module }) {
     showScreen('screen-summary');
 
     const pct = total > 0 ? Math.round(correct / total * 100) : 0;
@@ -366,14 +366,6 @@ const UI = (() => {
       unlocksEl.classList.remove('hidden');
       $('btn-confirm-unlock').addEventListener('click', () => _app.confirmUnlocks());
       $('btn-defer-unlock').addEventListener('click',  () => _app.deferUnlocks());
-    } else if (newUnlocks && newUnlocks.length > 0) {
-      // Interval auto-unlocks (shown as before)
-      const items = newUnlocks.map(u => {
-        const iv = INTERVAL_MAP[u.intervalId];
-        return `<li>🔓 <strong>${iv.name}</strong> ${_dirLabel(u.direction)}</li>`;
-      });
-      unlocksEl.innerHTML = '<h3>New unlocks!</h3><ul>' + items.join('') + '</ul>';
-      unlocksEl.classList.remove('hidden');
     } else {
       unlocksEl.classList.add('hidden');
     }
@@ -439,7 +431,7 @@ const UI = (() => {
     $('btn-session-again').addEventListener('click',  () => _app.startSession());
     $('btn-home-from-summary').addEventListener('click', () => renderHome());
     $('btn-home-from-question').addEventListener('click', () => {
-      if (confirm('End this session early?')) renderHome();
+      if (confirm('End this session early?')) { _app.session = null; renderHome(); }
     });
 
     // Reset / export / import
@@ -460,7 +452,7 @@ const UI = (() => {
     // Keyboard shortcuts
     document.addEventListener('keydown', e => {
       if (!$('screen-question').classList.contains('active')) return;
-      if (e.key === 'r' || e.key === 'R') { _app.replayInterval(); return; }
+      if (e.key === 'r' || e.key === 'R') { Audio.unlock(); _app.replayInterval(); return; }
       const num = parseInt(e.key, 10);
       if (!isNaN(num)) {
         const idx = num === 0 ? 9 : num - 1;

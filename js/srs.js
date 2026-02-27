@@ -182,7 +182,9 @@ class SRSDeck {
   static fromJSON(data) {
     const deck = new SRSDeck();
     for (const [id, cardData] of Object.entries(data)) {
-      deck.cards[id] = SRSCard.fromJSON(cardData);
+      if (deck.cards[id]) {
+        deck.cards[id] = SRSCard.fromJSON(cardData);
+      }
     }
     return deck;
   }

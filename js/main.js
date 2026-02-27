@@ -185,7 +185,7 @@ const App = {
     this._save();
 
     if (correct && this.settings.autoAdvance) {
-      setTimeout(() => this.nextQuestion(), 1200);
+      setTimeout(() => { if (this.session) this.nextQuestion(); }, 1200);
     } else {
       document.getElementById('btn-next').classList.remove('hidden');
     }
@@ -200,7 +200,6 @@ const App = {
   _endSession() {
     const isChords = this.session.module === 'chords';
     // Both modules: peek only — user confirms via the summary prompt.
-    const newUnlocks = [];
     const pendingUnlocks = isChords
       ? this.chordProgression.peekUnlocks()
       : this.progression.peekUnlocks();
@@ -234,7 +233,6 @@ const App = {
       date: new Date().toISOString(),
       correct: this.session.correct,
       total: this.session.total,
-      newUnlocks: newUnlocks.length,
       module: this.session.module,
     });
     if (this.stats.sessionHistory.length > 30) this.stats.sessionHistory.shift();
@@ -244,7 +242,6 @@ const App = {
     UI.renderSummary({
       correct: this.session.correct,
       total: this.session.total,
-      newUnlocks,
       pendingUnlocks,
       masteryChanges,
       module: this.session.module,
